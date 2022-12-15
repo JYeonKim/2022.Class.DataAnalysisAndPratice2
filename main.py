@@ -20,6 +20,33 @@ from model import GoogleNet
 
 from tqdm import tqdm
 
+def loss_batch(loss, outputs, target, opt, loss_list, pred_list, gt_list):
+
+    if np.shape(outputs)[0] == 3:
+        output, aux1, aux2 = outputs
+
+        output_loss = loss(output, target)
+        aux1_loss = loss(aux1, target)
+        aux2_loss = loss(aux2, target)
+
+        plus_aux = aux1_loss.item() + aux2_loss.item()
+        cost = output_loss + 0.3 * plus_aux
+        hypothesis = output.detach().cpu()
+    else:
+        cost = loss(outputs, target)
+        hypothesis = outputs.detach().cpu()
+
+    if opt is not None:
+        opt.zero_grad()
+        cost.backward()
+        opt.step()
+    
+    loss_list.append(cost.item())
+    pred_list.extend(torch.argmax(hypothesis, dim=1).numpy())
+    gt_list.extend(target.cpu().numpy())
+
+    return loss_list, pred_list, gt_list
+
 def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb_epoch):
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -112,36 +139,19 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
         train_pred = list()
         train_gt = list()
         batch_loss = list()
-
+        
         for (x, y) in pbar:
             x = x.to(device)
             y = y.to(device)
             
             try:
-                outputs = model(x)
+                output = model(x)
             except:
                 import pdb; pdb.set_trace()
             
-            # aux 처리
-            if np.shape(outputs)[0] == 3:
-                output, aux1, aux2 = outputs    
-                output_loss = loss(output, y)
-                aux1_loss = loss(aux1, y)
-                aux2_loss = loss(aux2, y)
+            # loss 처리
+            batch_loss, train_pred, train_gt  = loss_batch(loss, output, y, optimizer, batch_loss, train_pred, train_gt)
 
-                cost = output_loss + 0.3 * (aux1_loss + aux2_loss)                
-                hypothesis = output
-            else:
-                cost = loss(outputs, y)
-                hypothesis = outputs
-
-            optimizer.zero_grad()
-            cost.backward()
-            optimizer.step()
-            
-            batch_loss.append(cost.item())
-            train_pred.extend(torch.argmax(hypothesis, dim=1).cpu().numpy())
-            train_gt.extend(y.cpu().numpy())
             pbar.set_postfix({'epoch' : i, 'b_train_loss' : np.mean(batch_loss), 'b_train_acc' : accuracy_score(train_gt, train_pred)})
 
         # train loss, acc 기록
@@ -165,24 +175,11 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
                 x = x.to(device)
                 y = y.to(device)
 
-                outputs = model(x)
+                output = model(x)
 
-                # aux 처리
-                if np.shape(outputs)[0] == 3:
-                    output, aux1, aux2 = outputs    
-                    output_loss = loss(output, y)
-                    aux1_loss = loss(aux1, y)
-                    aux2_loss = loss(aux2, y)
+                # loss 처리
+                test_batch_loss, test_pred, test_gt  = loss_batch(loss, output, y, None, test_batch_loss, test_pred, test_gt)
 
-                    cost = output_loss + 0.3 * (aux1_loss + aux2_loss)                
-                    pred = output
-                else:
-                    cost = loss(outputs, y)
-                    pred = outputs
-
-                test_batch_loss.append(cost.item())
-                test_pred.extend(torch.argmax(pred, dim=1).cpu().numpy())
-                test_gt.extend(y.cpu().numpy())
                 test_pbar.set_postfix({'epoch': i, 'b_test_acc' : accuracy_score(test_gt, test_pred)})
         
         # test loss, acc 기록
@@ -257,5 +254,8 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 
 # 연습 및 확인용
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/pratice' --num_workers 30
+
+# pretrained 모델로 init + aux loss
+OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver6-2_SGD_1e-3_epoch_100' --num_workers 30
 
 """

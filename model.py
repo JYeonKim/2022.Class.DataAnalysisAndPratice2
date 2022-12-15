@@ -69,42 +69,42 @@ class GoogleNet(nn.Module):
             self._initialize_weights()
 
     def forward(self, x):
+        with torch.autograd.set_detect_anomaly(True):
+            x = self.conv1(x)
+            x = self.maxpool1(x)
+            x = self.conv2(x)
+            x = self.conv3(x)
+            x = self.maxpool2(x)
 
-        x = self.conv1(x)
-        x = self.maxpool1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.maxpool2(x)
+            x = self.inception3a(x)
+            x = self.inception3b(x)
+            x = self.maxpool3(x)
+            x = self.inception4a(x)
 
-        x = self.inception3a(x)
-        x = self.inception3b(x)
-        x = self.maxpool3(x)
-        x = self.inception4a(x)
+            if self.aux_logits and self.training:
+                aux1 = self.aux1(x)
 
-        if self.aux_logits and self.training:
-            aux1 = self.aux1(x)
+            x = self.inception4b(x)
+            x = self.inception4c(x)
+            x = self.inception4d(x)
 
-        x = self.inception4b(x)
-        x = self.inception4c(x)
-        x = self.inception4d(x)
+            if self.aux_logits and self.training:
+                aux2 = self.aux2(x)
 
-        if self.aux_logits and self.training:
-            aux2 = self.aux2(x)
+            x = self.inception4e(x)
+            x = self.maxpool4(x)
+            x = self.inception5a(x)
+            x = self.inception5b(x)
 
-        x = self.inception4e(x)
-        x = self.maxpool4(x)
-        x = self.inception5a(x)
-        x = self.inception5b(x)
+            x = self.avgpool(x)
+            x = torch.flatten(x, 1)
+            x = self.dropout(x)
+            aux3 = self.fc(x)
 
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        x = self.dropout(x)
-        aux3 = self.fc(x)
-
-        if self.aux_logits and self.training:
-            return aux3, aux1, aux2
-        else:
-            return aux3
+            if self.aux_logits and self.training:
+                return aux3, aux1, aux2
+            else:
+                return aux3
 
     # define weight initialization function
     def _initialize_weights(self):
@@ -200,12 +200,13 @@ class InceptionAux(nn.Module):
         self.dropout = nn.Dropout(dropout, True)
 
     def forward(self,x):
-        out = self.avgpool(x)
-        out = self.conv(out)
-        out = torch.flatten(out, 1)
-        out = self.fc1(out)
-        out = self.relu(out)
-        out = self.dropout(out)
-        out = self.fc2(out)
+        with torch.autograd.set_detect_anomaly(True):
+            out = self.avgpool(x)
+            out = self.conv(out)
+            out = torch.flatten(out, 1)
+            out = self.fc1(out)
+            out = self.relu(out)
+            out = self.dropout(out)
+            out = self.fc2(out)
 
-        return out
+            return out
