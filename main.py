@@ -14,9 +14,9 @@ import argparse
 import torch.utils.data as data
 
 from sklearn.metrics import accuracy_score
-# from sklearn.model_selection import train_test_split
-# from sklearn import preprocessing
 import gc
+
+from model import GoogleNet
 
 from tqdm import tqdm
 
@@ -24,7 +24,8 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    train_dir = os.getcwd() + "/data/reorganized"
+    # train_dir을 파일 위치에 맞춰 변경함
+    train_dir = "/home/users/s19013225/workspace/data/reorganized"
     
     # dataset, dataloader
     print(">> make dataloader")
@@ -44,7 +45,6 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     train_stdG = np.mean([s[1] for s in train_stdRGB])
     train_stdB = np.mean([s[2] for s in train_stdRGB])
     """
-    
     train_meanR = 0.7640913724899292
     train_meanG = 0.5459975600242615
     train_meanB = 0.5704405903816223
@@ -86,10 +86,8 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    # model 
-    model = torch.hub.load('pytorch/vision:v0.10.0', 'googlenet', pretrained=True)
-    model.fc = torch.nn.Linear(1024, 7)
-    torch.nn.init.xavier_uniform_(model.fc.weight)
+    # model 정의
+    model = GoogleNet(aux_logits=True, num_classes=7, init_weights=True)
     model = model.to(device)
 
     if optimizer_name == "Adam":
@@ -120,11 +118,22 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
             y = y.to(device)
             
             try:
-                hypothesis = model(x)
+                outputs = model(x)
             except:
                 import pdb; pdb.set_trace()
             
-            cost = loss(hypothesis, y)
+            # aux 처리
+            if np.shape(outputs)[0] == 3:
+                output, aux1, aux2 = outputs    
+                output_loss = loss(output, y)
+                aux1_loss = loss(aux1, y)
+                aux2_loss = loss(aux2, y)
+
+                cost = output_loss + 0.3 * (aux1_loss + aux2_loss)                
+                hypothesis = output
+            else:
+                cost = loss(outputs, y)
+                hypothesis = outputs
 
             optimizer.zero_grad()
             cost.backward()
@@ -156,8 +165,20 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
                 x = x.to(device)
                 y = y.to(device)
 
-                pred = model(x)
-                cost = loss(pred, y)
+                outputs = model(x)
+
+                # aux 처리
+                if np.shape(outputs)[0] == 3:
+                    output, aux1, aux2 = outputs    
+                    output_loss = loss(output, y)
+                    aux1_loss = loss(aux1, y)
+                    aux2_loss = loss(aux2, y)
+
+                    cost = output_loss + 0.3 * (aux1_loss + aux2_loss)                
+                    pred = output
+                else:
+                    cost = loss(outputs, y)
+                    pred = outputs
 
                 test_batch_loss.append(cost.item())
                 test_pred.extend(torch.argmax(pred, dim=1).cpu().numpy())
@@ -233,5 +254,8 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 
 # OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/data_aug_ver_SGD_1e-3_epoch_100' --num_workers 30
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/change_data_aug_ver_SGD_1e-3_epoch_100' --num_workers 30
+
+# 연습 및 확인용
+OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/pratice' --num_workers 30
 
 """
