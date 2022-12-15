@@ -52,12 +52,13 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # train_dir을 파일 위치에 맞춰 변경함
-    train_dir = "/home/users/s19013225/workspace/data/reorganized"
+    train_dir = "/home/users/s19013225/workspace/data/train_augmented"
+    test_dir = "/home/users/s19013225/workspace/data/test"
     
     # dataset, dataloader
     print(">> make dataloader")
-    all_data = torchvision.datasets.ImageFolder(root=train_dir, transform=transforms.ToTensor())
-    train_dataset, test_dataset = data.random_split(all_data, [0.9, 0.1], generator=torch.Generator().manual_seed(42))
+    train_dataset = torchvision.datasets.ImageFolder(root=train_dir, transform=transforms.ToTensor())
+    test_dataset = torchvision.datasets.ImageFolder(root=test_dir, transform=transforms.ToTensor())
     
     # To normalize the dataset, calculate the mean and std
     print(">> check image mean, std")
@@ -114,7 +115,7 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     # model 정의
-    model = GoogleNet(aux_logits=False, num_classes=7, init_weights=True)
+    model = GoogleNet(aux_logits=True, num_classes=7, init_weights=True)
     model = model.to(device)
 
     if optimizer_name == "Adam":
@@ -249,7 +250,9 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/SGD_1e-2_epoch_200' --num_workers 30
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/SGD_1e-3_epoch_200' --num_workers 30
 
-# OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/data_aug_ver_SGD_1e-3_epoch_100' --num_workers 30
+# 224 ver4
+
+# ver5
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/change_data_aug_ver_SGD_1e-3_epoch_100' --num_workers 30
 
 # 연습 및 확인용
@@ -260,5 +263,8 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 
 # pretrained 모델로 init + aux loss x 버전
 OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver7_SGD_1e-3_epoch_100' --num_workers 30
+
+# pretrained 모델로 init + aux loss 0 + augmented data 0 버전
+OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver8_SGD_1e-3_epoch_100' --num_workers 30
 
 """
