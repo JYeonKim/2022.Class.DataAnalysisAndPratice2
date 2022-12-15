@@ -114,7 +114,7 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     # model 정의
-    model = GoogleNet(aux_logits=True, num_classes=7, init_weights=True)
+    model = GoogleNet(aux_logits=False, num_classes=7, init_weights=True)
     model = model.to(device)
 
     if optimizer_name == "Adam":
@@ -257,5 +257,8 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 
 # pretrained 모델로 init + aux loss
 OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver6-2_SGD_1e-3_epoch_100' --num_workers 30
+
+# pretrained 모델로 init + aux loss x 버전
+OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver7_SGD_1e-3_epoch_100' --num_workers 30
 
 """
