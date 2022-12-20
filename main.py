@@ -116,7 +116,7 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
     test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     # model 정의
-    model = GoogleNet(aux_logits=False, num_classes=7, init_weights=True)
+    model = GoogleNet(aux_logits=True, num_classes=7, init_weights=True)
     model = model.to(device)
 
     if optimizer_name == "Adam":
@@ -178,6 +178,12 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
                 y = y.to(device)
 
                 output = model(x)
+                import pdb; pdb.set_trace()
+                # test는 aux loss 사용 x
+                if len(output) == 3:
+                    output, _, _ = output
+                else:
+                    pass
 
                 # loss 처리
                 test_batch_loss, test_pred, test_gt  = loss_batch(loss, output, y, None, test_batch_loss, test_pred, test_gt)
@@ -271,4 +277,6 @@ OMP_NUM_THREADS=32 python main.py --gpu '0' --batch_size 16 --save_path './check
 # pretrained 모델로 init + aux loss X + augmented data 0 버전
 OMP_NUM_THREADS=32 python main.py --gpu '0' --batch_size 16 --save_path './checkpoint/ver9_SGD_1e-3_epoch_100' --num_workers 30
 
+# pretrained 모델로 init + aux loss 0(test x, train 0) + augmented data 0 버전
+OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver10_SGD_1e-3_epoch_100' --num_workers 30
 """
