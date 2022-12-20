@@ -44,6 +44,18 @@ test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndP
 train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver6-2_SGD_1e-3_epoch_100/train_acc.npy')
 test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver6-2_SGD_1e-3_epoch_100/test_acc.npy')
 
+# ver7
+train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver7_SGD_1e-3_epoch_100/train_loss.npy')
+test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver7_SGD_1e-3_epoch_100/test_loss.npy')
+train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver7_SGD_1e-3_epoch_100/train_acc.npy')
+test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver7_SGD_1e-3_epoch_100/test_acc.npy')
+
+# ver8
+train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver8_SGD_1e-3_epoch_100/train_loss.npy')
+test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver8_SGD_1e-3_epoch_100/test_loss.npy')
+train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver8_SGD_1e-3_epoch_100/train_acc.npy')
+test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver8_SGD_1e-3_epoch_100/test_acc.npy')
+
 fig = plt.figure(figsize=(15,10), dpi=200)
 ax1 = fig.add_subplot(1, 2, 1)
 ax1.plot(np.arange(len(train_loss)), train_loss, label='train')

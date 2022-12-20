@@ -22,7 +22,8 @@ from tqdm import tqdm
 
 def loss_batch(loss, outputs, target, opt, loss_list, pred_list, gt_list):
 
-    if np.shape(outputs)[0] == 3:
+    # if np.shape(outputs)[0] == 3:
+    if len(outputs) == 3:
         output, aux1, aux2 = outputs
 
         output_loss = loss(output, target)
@@ -265,6 +266,6 @@ OMP_NUM_THREADS=1 python main.py --gpu '1' --batch_size 16 --save_path './checkp
 OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver7_SGD_1e-3_epoch_100' --num_workers 30
 
 # pretrained 모델로 init + aux loss 0 + augmented data 0 버전
-OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver8_SGD_1e-3_epoch_100' --num_workers 30
+OMP_NUM_THREADS=32 python main.py --gpu '0' --batch_size 16 --save_path './checkpoint/ver8_SGD_1e-3_epoch_100' --num_workers 30
 
 """
