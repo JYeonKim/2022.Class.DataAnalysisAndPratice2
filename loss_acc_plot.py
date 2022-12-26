@@ -9,11 +9,11 @@ from torchvision import transforms
 import torch.utils.data as data
 import numpy as np
 
-# ver10
-train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/train_loss.npy')
-test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/test_loss.npy')
-train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/train_acc.npy')
-test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/test_acc.npy')
+# ver11
+train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver11_SGD_1e-3_epoch_100/train_loss.npy')
+test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver11_SGD_1e-3_epoch_100/test_loss.npy')
+train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver11_SGD_1e-3_epoch_100/train_acc.npy')
+test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver11_SGD_1e-3_epoch_100/test_acc.npy')
 
 fig = plt.figure(figsize=(15,10), dpi=200)
 ax1 = fig.add_subplot(1, 2, 1)
@@ -29,7 +29,7 @@ ax2.plot(np.arange(len(test_acc)), test_acc, label='test')
 ax2.legend()
 ax2.set_title("Acc",fontsize=16)
 ax2.set_xlabel('Epoch', fontsize=16)
-fig.savefig('./figure/ver10.png')
+fig.savefig('./figure/ver11.png')
 
 """
 # ver5
@@ -61,6 +61,12 @@ train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAnd
 test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver9_SGD_1e-3_epoch_100/test_loss.npy')
 train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver9_SGD_1e-3_epoch_100/train_acc.npy')
 test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver9_SGD_1e-3_epoch_100/test_acc.npy')
+
+# ver10
+train_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/train_loss.npy')
+test_loss = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/test_loss.npy')
+train_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/train_acc.npy')
+test_acc = np.load('/home/users/s19013225/workspace/2022.Class.DataAnalysisAndPratice2/checkpoint/ver10_SGD_1e-3_epoch_100/test_acc.npy')
 
 fig = plt.figure(figsize=(15,10), dpi=200)
 ax1 = fig.add_subplot(1, 2, 1)

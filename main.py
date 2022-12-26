@@ -22,8 +22,12 @@ from tqdm import tqdm
 
 def loss_batch(loss, outputs, target, opt, loss_list, pred_list, gt_list):
 
-    # if np.shape(outputs)[0] == 3:
-    if len(outputs) == 3:
+    try:
+        shape_size = np.shape(outputs)[0]
+    except:
+        shape_size = 3
+
+    if shape_size == 3:
         output, aux1, aux2 = outputs
 
         output_loss = loss(output, target)
@@ -178,15 +182,19 @@ def train(image_size, batch_size, num_workers, optimizer_name, learning_rate, nb
                 y = y.to(device)
 
                 output = model(x)
-                import pdb; pdb.set_trace()
+                try:
+                    shape_size = np.shape(output)[0]
+                except:
+                    shape_size = 3
+                    
                 # test는 aux loss 사용 x
-                if len(output) == 3:
-                    output, _, _ = output
+                if shape_size == 3:
+                    test_output, _, _ = output
                 else:
-                    pass
+                    test_output = output
 
                 # loss 처리
-                test_batch_loss, test_pred, test_gt  = loss_batch(loss, output, y, None, test_batch_loss, test_pred, test_gt)
+                test_batch_loss, test_pred, test_gt  = loss_batch(loss, test_output, y, None, test_batch_loss, test_pred, test_gt)
 
                 test_pbar.set_postfix({'epoch': i, 'b_test_acc' : accuracy_score(test_gt, test_pred)})
         
@@ -279,4 +287,7 @@ OMP_NUM_THREADS=32 python main.py --gpu '0' --batch_size 16 --save_path './check
 
 # pretrained 모델로 init + aux loss 0(test x, train 0) + augmented data 0 버전
 OMP_NUM_THREADS=32 python main.py --gpu '1' --batch_size 16 --save_path './checkpoint/ver10_SGD_1e-3_epoch_100' --num_workers 30
+
+# pretrained 모델로 init + aux loss 0(test x, train 0) + augmented data 0 버전 (수정한버전!!!!)
+OMP_NUM_THREADS=32 python main.py --gpu '0' --batch_size 16 --save_path './checkpoint/ver11_SGD_1e-3_epoch_100' --num_workers 30
 """
